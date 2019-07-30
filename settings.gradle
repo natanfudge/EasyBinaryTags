@@ -1,2 +1,4 @@
+rootProject.name = 'EasyBinaryTags'
+include 'generator'
+include 'sample-main'
 
-include("processor", "annotations")
