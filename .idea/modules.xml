@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/EasyBinaryTags.iml" filepath="$PROJECT_DIR$/.idea/modules/EasyBinaryTags.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/generator/EasyBinaryTags.generator.iml" filepath="$PROJECT_DIR$/.idea/modules/generator/EasyBinaryTags.generator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/generator/EasyBinaryTags.generator.main.iml" filepath="$PROJECT_DIR$/.idea/modules/generator/EasyBinaryTags.generator.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/generator/EasyBinaryTags.generator.test.iml" filepath="$PROJECT_DIR$/.idea/modules/generator/EasyBinaryTags.generator.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/EasyBinaryTags.main.iml" filepath="$PROJECT_DIR$/.idea/modules/EasyBinaryTags.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample-main/EasyBinaryTags.sample-main.iml" filepath="$PROJECT_DIR$/.idea/modules/sample-main/EasyBinaryTags.sample-main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample-main/EasyBinaryTags.sample-main.main.iml" filepath="$PROJECT_DIR$/.idea/modules/sample-main/EasyBinaryTags.sample-main.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample-main/EasyBinaryTags.sample-main.test.iml" filepath="$PROJECT_DIR$/.idea/modules/sample-main/EasyBinaryTags.sample-main.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/EasyBinaryTags.test.iml" filepath="$PROJECT_DIR$/.idea/modules/EasyBinaryTags.test.iml" />
+    </modules>
+  </component>
+</project>
