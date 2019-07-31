@@ -1,7 +1,7 @@
 package fudge
 
 import fudge.Generated_Hello
-import fudge.toJson
+import fudge.minecraft.CompoundTag
 
 @GenName
 class Hello
@@ -18,5 +18,6 @@ fun main() {
             email = "test@email.com"
     )
     println("User: $user")
-    println("Json: ${user.toJson()}")
+    println("Json: ${user.toTag()}")
+
 }

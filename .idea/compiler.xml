@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <option name="BUILD_PROCESS_ADDITIONAL_VM_OPTIONS" value="-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000" />
     <bytecodeTargetLevel>
       <module name="EasyBinaryTags.generator.main" target="1.8" />
       <module name="EasyBinaryTags.generator.test" target="1.8" />
@@ -8,18 +9,9 @@
       <module name="EasyBinaryTags.sample-main.main" target="1.8" />
       <module name="EasyBinaryTags.sample-main.test" target="1.8" />
       <module name="EasyBinaryTags.test" target="1.8" />
-      <module name="generator_main" target="1.8" />
-      <module name="generator_test" target="1.8" />
-      <module name="kotlin-code-gen-sample.generator.main" target="1.8" />
-      <module name="kotlin-code-gen-sample.generator.test" target="1.8" />
-      <module name="kotlin-code-gen-sample.main" target="1.8" />
-      <module name="kotlin-code-gen-sample.sample-main.main" target="1.8" />
-      <module name="kotlin-code-gen-sample.sample-main.test" target="1.8" />
-      <module name="kotlin-code-gen-sample.test" target="1.8" />
-      <module name="kotlin-code-gen-sample_main" target="1.8" />
-      <module name="kotlin-code-gen-sample_test" target="1.8" />
-      <module name="sample-main_main" target="1.8" />
-      <module name="sample-main_test" target="1.8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="PREFER_TARGET_JDK_COMPILER" value="false" />
   </component>
 </project>
