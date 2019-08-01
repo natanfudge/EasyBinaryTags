@@ -15,7 +15,7 @@ task buildDebug() {
 
 kapt {
     generateStubs = true
-    useBuildCache = true
+//    useBuildCache = true
 }
 
 repositories {
@@ -29,11 +29,20 @@ sourceSets {
         }
     }
 }
-
+test {
+    useJUnitPlatform()
+}
 
 
 dependencies {
     kapt project(":generator")
-    compile project(":generator")
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    kaptTest project(":generator")
+    implementation project(":generator")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.1'
+    testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-test', version: '1.1.51'
 }
+//compileTestKotlin {
+//    kotlinOptions.jvmTarget = "1.8"
+//}

@@ -1,5 +1,7 @@
 package fudge.minecraft
 
+import java.util.*
+
 interface Tag
 class CompoundTag : Tag {
     private val map = mutableMapOf<String, Any?>()
@@ -7,10 +9,31 @@ class CompoundTag : Tag {
     fun putString(key: String, string: String) = map.put(key, string)
     fun putLong(key: String, long: Long) = map.put(key, long)
     fun put(key: String, tag: CompoundTag) = map.put(key, tag)
+    fun putByte(key: String, byte: Byte) = map.put(key, byte)
+    fun putShort(key: String, short: Short) = map.put(key, short)
+    fun putFloat(key: String, float: Float) = map.put(key, float)
+    fun putDouble(key: String, double: Double) = map.put(key, double)
+    fun putBoolean(key: String, boolean: Boolean) = map.put(key, boolean)
+    fun putByteArray(key: String, byteArray: ByteArray) = map.put(key, byteArray)
+    fun putIntArray(key: String, intArray: IntArray) = map.put(key, intArray)
+    fun putLongArray(key: String, longArray: LongArray) = map.put(key, longArray)
+    fun putUuid(key: String, uuid: UUID) = map.put(key, uuid)
+
+
     fun getInt(key: String) = map[key] as Int
     fun getString(key: String) = map[key] as String
     fun getLong(key: String) = map[key] as Long
     fun getTag(key: String) = map[key] as Tag
+    fun getByte(key: String) = map[key] as Byte
+    fun getShort(key: String) = map[key] as Short
+    fun getFloat(key: String) = map[key] as Float
+    fun getDouble(key: String) = map[key] as Double
+    fun getBoolean(key: String) = map[key] as Boolean
+    fun getByteArray(key: String) = map[key] as ByteArray
+    fun getIntArray(key: String) = map[key] as IntArray
+    fun getLongArray(key: String) = map[key] as LongArray
+    fun getUuid(key: String) = map[key] as UUID
+
 
     override fun toString() = "CompoundTag{ $map }"
 }
