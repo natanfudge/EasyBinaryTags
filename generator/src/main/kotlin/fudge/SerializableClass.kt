@@ -7,7 +7,7 @@ data class SerializableProperty(val name: String, val type: String)
 private fun putArgs(arg1: String, arg2: String) = "(\"$arg1\", $arg2)"
 private fun putArgs(arg1: String) = putArgs(arg1, arg1)
 
-fun SerializableProperty.getPutStatement(serializables : Set<String>): String {
+fun SerializableProperty.getPutStatement(serializables: Set<String>): String {
     println("Processing $this")
     // Java types
     val typeWithoutJavaLang = type.removePrefix("java.lang.")
@@ -22,17 +22,18 @@ fun SerializableProperty.getPutStatement(serializables : Set<String>): String {
     if (typeWithoutArraySurrounding in kotlinArrayTypes) return "put${typeWithoutArraySurrounding}Array${putArgs(name)}"
 
     // Custom serializables
-    if(type in serializables) return "put" + putArgs(name,"$name.toTag()")
-
+    if (type in serializables) return "put" + putArgs(name, "$name.toTag()")
 
 
     //UUID
     if (type == "java.util.UUID") return "putUuid${putArgs(name)}"
-    else throw AnnotationProcessingException("Unsupported." +
-            " there is no serialization for the type '$type' yet, " +
-//            "(typeWithoutJavaLang = $typeWithoutJavaLang), " +
-            "(typeWithoutKotlin = $typeWithoutKotlin), " +
-            "(typeWithoutArraySurrounding) = $typeWithoutArraySurrounding).")
+
+    throw AnnotationProcessingException("Hello there." +
+            " It appears you tried to put @NbtSerializable on a class with a property that is not serializable named '$name'." +
+            " Make sure every property is either: A Primitive, UUID, BlockPos, or your own class that is annotated with @NbtSerializable." +
+            " ByteArray, IntArray and LongArray also work out of the box.\n" +
+            "If you are certain this property is serializable, please submit an issue on Github."
+    )
 
 }
 

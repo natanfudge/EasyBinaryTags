@@ -25,8 +25,16 @@ data class Primitives(val name: String,
 
 @NbtSerializable
 data class PrimitivesShort(val name: String, val age: Int)
+
 @NbtSerializable
-data class Nested(val obj: Primitives, val primitive: Int, val anotherObj: PrimitivesShort)
+data class Nested(val obj: Primitives, val primitive: Int, val anotherObj: PrimitivesShort) {
+    private val x: Int = 0
+    protected val y: Double = 0.0
+}
+
+//TODO: test this
+@NbtSerializable
+data class BadlyNamed(val bool: Boolean, val isBadlyNamed :String, val getBadlyNamed : Int,val getBadBool : Boolean)
 
 class SerializationTests {
     @Test
@@ -67,14 +75,24 @@ class SerializationTests {
         val intArray = intArrayOf(20, 30)
         val longArray = longArrayOf(10, 11)
         val primitives = createPrimitives(byteArray, intArray, longArray)
-        val nested = Nested(primitives,15, PrimitivesShort(name = "amar", age = 69))
+        val nested = Nested(primitives, 15, PrimitivesShort(name = "amar", age = 69))
         val serialized = nested.toTag()
         val primitivesSerialized = serialized.getTag("obj") as CompoundTag
-        val shortPrimitivesSerialized= serialized.getTag("anotherObj") as CompoundTag
-        assertEquals(15,serialized.getInt("primitive"))
+        val shortPrimitivesSerialized = serialized.getTag("anotherObj") as CompoundTag
+        assertEquals(15, serialized.getInt("primitive"))
         verifySerializedPrimitives(primitivesSerialized, byteArray, intArray, longArray)
-        assertEquals("amar",shortPrimitivesSerialized.getString("name"))
-        assertEquals(69,shortPrimitivesSerialized.getInt("age"))
+        assertEquals("amar", shortPrimitivesSerialized.getString("name"))
+        assertEquals(69, shortPrimitivesSerialized.getInt("age"))
+    }
+
+    @Test
+    fun testBadlyNamed(){
+        val badlyNamed = BadlyNamed(bool = false, isBadlyNamed = "badname", getBadlyNamed = 13, getBadBool = true)
+        val serialized = badlyNamed.toTag()
+        assertEquals(false, serialized.getBoolean("bool"))
+        assertEquals("badname", serialized.getString("isBadlyNamed"))
+        assertEquals(13, serialized.getInt("getBadlyNamed"))
+        assertEquals(true, serialized.getBoolean("getBadBool"))
     }
 }
 
