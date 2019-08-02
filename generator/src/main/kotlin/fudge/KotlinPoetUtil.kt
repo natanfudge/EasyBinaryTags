@@ -68,16 +68,16 @@ inline fun FunSpec.Builder.addParameter(
     addParameter(ParameterSpec.builder(name, type, *modifiers).apply(init).build())
 }
 
-inline fun parameter(
-        name: String,
-        type: TypeName,
-        vararg modifiers: KModifier,
-        init: ParameterSpec.Builder.() -> Unit = {}
-): ParameterSpec = ParameterSpec.builder(name, type, *modifiers).apply(init).build()
+//inline fun parameter(
+//        name: String,
+//        type: TypeName,
+//        vararg modifiers: KModifier,
+//        init: ParameterSpec.Builder.() -> Unit = {}
+//): ParameterSpec = ParameterSpec.builder(name, type, *modifiers).apply(init).build()
 
-//inline fun JsonToKotPlot.addObject(name: String, init : TypeSpec.Builder.() -> Unit = {}){
-//    file.addType(TypeSpec.objectBuilder(name).apply(init).build())
-//}
+inline fun FileSpec.Builder.addObject(name: String, init : TypeSpec.Builder.() -> Unit = {}){
+    addType(TypeSpec.objectBuilder(name).apply(init).build())
+}
 //
 //inline fun JsonToKotPlot.addEnum(name: String, init: TypeSpec.Builder.() -> Unit){
 //    file.addType(TypeSpec.enumBuilder(name).apply(init).build())

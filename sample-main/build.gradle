@@ -15,7 +15,7 @@ task buildDebug() {
 
 kapt {
     generateStubs = true
-//    useBuildCache = true
+    useBuildCache = true
 }
 
 repositories {

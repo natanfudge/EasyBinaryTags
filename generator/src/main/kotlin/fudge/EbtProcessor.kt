@@ -2,7 +2,6 @@ package fudge
 
 import com.google.auto.service.AutoService
 import com.squareup.kotlinpoet.asTypeName
-import java.io.File
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.Processor
@@ -17,6 +16,7 @@ import javax.tools.Diagnostic
 //TODO: support incremental processing somehow (The problem is that old source files don't get deleted)
 //TODO: tone down logging for the user
 
+const val SerializerSuffix = "Serializer"
 
 //TODO: BlockPos serializing and testing in the final version
 @AutoService(Processor::class)
@@ -39,7 +39,7 @@ class EbtProcessor : AbstractProcessor() {
 
         val elements = roundEnv.getElementsAnnotatedWith(NbtSerializable::class.java)
         // See what has been annotated so we can tell if a class that is declared in a field of a serializable class is missing
-        val serializables = elements.map { it.simpleName.toString() }.toSet()
+        val serializables = elements.map { it.toString() }.toSet()
 
 
         for (element in elements) {
@@ -61,28 +61,83 @@ class EbtProcessor : AbstractProcessor() {
         processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, "Generating class in file '$fileName' in package '$pack'\n")
 
         val serializableClass = element.toSerializableClass()
-        val putStatements = serializableClass.fields
-                .joinToString("\n    ") { it.getPutStatement(serializables) }
-        val string = """
-return CompoundTag().apply {
-    $putStatements
-}
-        """.trimIndent()
+
+        val namesAndArgs = serializableClass.fields.map { it.getMethodSuffixAndArgs(serializables, element.simpleName.toString()) }
+
+//        println("values = ${namesAndArgs.map { it.value }}")
+        val serializerBody = getSerializerBody(namesAndArgs)
+
+//        println("namesAndArgs = $namesAndArgs")
+
+
+        val getStatements = namesAndArgs.joinToString(", ") {
+            if (it.isTag) it.simpleTypeName + SerializerSuffix + ".fromTag(" + "getTag" + getArgs(it.propertyName) + " as CompoundTag)"
+            else "get" + it.suffix + getArgs(it.propertyName)
+        }
+
+        val deserializerBody = """
+return tag.run { ${element.simpleName}($getStatements) }          
+""".trimIndent()
+
+        val compoundTagTypeName = "CompoundTag".toClassName(packageName = CompoundTagNamespace)
 
         val file = KotlinPoet.file(pack, fileName) {
             addFunction(name = "toTag") {
-                returns("CompoundTag".toClassName(packageName = CompoundTagNamespace))
+                returns(compoundTagTypeName)
                 receiver(element.asType().asTypeName())
-                addStatement(string)
+                addStatement(serializerBody)
+
+                addOriginatingElement(element)
             }
+
+            addObject(name = "${element.simpleName}$SerializerSuffix") {
+                addFunction(name = "fromTag") {
+                    returns(element.asType().asTypeName())
+                    addStatement(deserializerBody)
+                    addParameter(name = "tag", type = compoundTagTypeName)
+
+                }
+
+                addOriginatingElement(element)
+            }
+
+
+//            addFunction(name = "fromTag") {
+//                returns(element.simpleName.toString().toClassName(""))
+//                receiver(
+//
+//                        TypeSpec.companionObjectBuilder(element.simpleName.toString()).apply {
+//
+//                        }.build().name!!.toClassName(element.toString().removeSuffix(".${element.simpleName}"))
+//                )
+//                addOriginatingElement(element)
+//            }
+
         }
 
 
         val kaptKotlinGeneratedDir = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME]
-        file.writeTo(File(kaptKotlinGeneratedDir, "$fileName.kt"))
+        val filer = processingEnv.filer
+        file.writeTo(filer)
     }
 
-//    data class X(val Me :Int)
+    private fun putArgs(key: String, value: String) = "(\"$key\", $value)"
+    private fun putArgs(keyAndValue: String) = putArgs(keyAndValue, keyAndValue)
+    private fun getArgs(key: String) = "(\"$key\")"
+
+
+    private fun getSerializerBody(namesAndArgs: List<MethodSuffixAndArgsResult>): String {
+        val putStatements = namesAndArgs.joinToString("\n    ") {
+            if (it.isTag) "put" + it.suffix + putArgs(it.propertyName, it.propertyName + ".toTag()")
+            else "put" + it.suffix + putArgs(it.propertyName)
+        }
+        return """
+    return CompoundTag().apply {
+        $putStatements
+    }
+            """.trimIndent()
+    }
+
 
     private fun Element.toSerializableClass(): SerializableClass {
 //        println("elements = ${enclosedElements}")
@@ -95,18 +150,20 @@ return CompoundTag().apply {
                 .filter {
                     it.kind == ElementKind.FIELD
                             //Ensure private fields don't get in
-                            &&  it.hasGetter(publicMethods)
+                            && it.hasGetter(publicMethods)
 
                 }
                 .map {
                     SerializableProperty(it.toString(), it.asType().asTypeName().toString())
+//                            // Remove package name
+//                            .split(".").last())
                 }
 
         return SerializableClass(fields)
 
     }
 
-    private fun Element.hasGetter(methods: List<String>)  :Boolean{
+    private fun Element.hasGetter(methods: List<String>): Boolean {
         val getterName = if (this.toString().startsWith("is")) this.toString() else "get" + this.toString().toTitleCase()
 //        println("getterName = $getterName")
         return getterName in methods

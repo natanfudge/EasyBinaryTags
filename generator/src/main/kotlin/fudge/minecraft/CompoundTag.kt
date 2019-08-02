@@ -3,6 +3,13 @@ package fudge.minecraft
 import java.util.*
 
 interface Tag
+//TODO: change namespaces to be just like in minecraft
+class ListTag : Tag{
+    private val list = mutableListOf<Any>()
+    //TODO: implement this
+//    fun put(key : String, ) = list.add()
+}
+
 class CompoundTag : Tag {
     private val map = mutableMapOf<String, Any?>()
     fun putInt(key: String, int: Int) = map.put(key, int)

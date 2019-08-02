@@ -1,13 +1,13 @@
-import fudge.NbtSerializable
+package fudge
+
 import fudge.minecraft.CompoundTag
 import org.junit.jupiter.api.Test
+import toTag
 import java.util.*
 import kotlin.test.assertEquals
 
-//TODO: tests
-//TODO: tests for invalid input
 
-@Suppress("ArrayInDataClass")
+
 @NbtSerializable
 data class Primitives(val name: String,
                       val age: Byte,
@@ -21,7 +21,45 @@ data class Primitives(val name: String,
                       val parentsTimeBreathed: IntArray,
                       val parentsDistanceToMars: LongArray,
                       val id: UUID
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Primitives
+
+        if (name != other.name) return false
+        if (age != other.age) return false
+        if (length != other.length) return false
+        if (timesBreathed != other.timesBreathed) return false
+        if (distanceToMars != other.distanceToMars) return false
+        if (height != other.height) return false
+        if (weight != other.weight) return false
+        if (isMale != other.isMale) return false
+        if (!parentAges.contentEquals(other.parentAges)) return false
+        if (!parentsTimeBreathed.contentEquals(other.parentsTimeBreathed)) return false
+        if (!parentsDistanceToMars.contentEquals(other.parentsDistanceToMars)) return false
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + age
+        result = 31 * result + length
+        result = 31 * result + timesBreathed
+        result = 31 * result + distanceToMars.hashCode()
+        result = 31 * result + height.hashCode()
+        result = 31 * result + weight.hashCode()
+        result = 31 * result + isMale.hashCode()
+        result = 31 * result + parentAges.contentHashCode()
+        result = 31 * result + parentsTimeBreathed.contentHashCode()
+        result = 31 * result + parentsDistanceToMars.contentHashCode()
+        result = 31 * result + id.hashCode()
+        return result
+    }
+}
 
 @NbtSerializable
 data class PrimitivesShort(val name: String, val age: Int)
@@ -32,7 +70,6 @@ data class Nested(val obj: Primitives, val primitive: Int, val anotherObj: Primi
     protected val y: Double = 0.0
 }
 
-//TODO: test this
 @NbtSerializable
 data class BadlyNamed(val bool: Boolean, val isBadlyNamed :String, val getBadlyNamed : Int,val getBadBool : Boolean)
 
