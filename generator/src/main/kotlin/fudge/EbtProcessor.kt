@@ -15,8 +15,12 @@ import javax.tools.Diagnostic
 
 //TODO: support incremental processing somehow (The problem is that old source files don't get deleted)
 //TODO: tone down logging for the user
+//TODO: support blockpos
 
-const val SerializerSuffix = "Serializer"
+// Serializer is shorter, users don't want to type "deserializer"
+const val DeserializerSuffix = "Serializer"
+
+val x = 2.rem(3)
 
 //TODO: BlockPos serializing and testing in the final version
 @AutoService(Processor::class)
@@ -45,10 +49,6 @@ class EbtProcessor : AbstractProcessor() {
         for (element in elements) {
             println("Processing: ${element.simpleName}")
 
-            println()
-
-//                    val pack = processingEnv.elementUtils.getPackageOf(it)
-            //TODO: think about if this is optimal
             generateClass(element, "", serializables)
         }
 
@@ -62,22 +62,14 @@ class EbtProcessor : AbstractProcessor() {
 
         val serializableClass = element.toSerializableClass()
 
-        val namesAndArgs = serializableClass.fields.map { it.getMethodSuffixAndArgs(serializables, element.simpleName.toString()) }
-
-//        println("values = ${namesAndArgs.map { it.value }}")
-        val serializerBody = getSerializerBody(namesAndArgs)
-
-//        println("namesAndArgs = $namesAndArgs")
-
-
-        val getStatements = namesAndArgs.joinToString(", ") {
-            if (it.isTag) it.simpleTypeName + SerializerSuffix + ".fromTag(" + "getTag" + getArgs(it.propertyName) + " as CompoundTag)"
-            else "get" + it.suffix + getArgs(it.propertyName)
+        val serializationMethods = serializableClass.fields.map {
+            it.getSerializationMethod(serializables, element.simpleName.toString(),processingEnv,element)
         }
 
-        val deserializerBody = """
-return tag.run { ${element.simpleName}($getStatements) }          
-""".trimIndent()
+//        println("values = ${namesAndArgs.map { it.value }}")
+        val serializerBody = getSerializerBody(serializationMethods)
+        val deserializerBody = getDeserializerBody(serializationMethods,element.simpleName.toString())
+
 
         val compoundTagTypeName = "CompoundTag".toClassName(packageName = CompoundTagNamespace)
 
@@ -90,7 +82,7 @@ return tag.run { ${element.simpleName}($getStatements) }
                 addOriginatingElement(element)
             }
 
-            addObject(name = "${element.simpleName}$SerializerSuffix") {
+            addObject(name = "${element.simpleName}$DeserializerSuffix") {
                 addFunction(name = "fromTag") {
                     returns(element.asType().asTypeName())
                     addStatement(deserializerBody)
@@ -101,17 +93,6 @@ return tag.run { ${element.simpleName}($getStatements) }
                 addOriginatingElement(element)
             }
 
-
-//            addFunction(name = "fromTag") {
-//                returns(element.simpleName.toString().toClassName(""))
-//                receiver(
-//
-//                        TypeSpec.companionObjectBuilder(element.simpleName.toString()).apply {
-//
-//                        }.build().name!!.toClassName(element.toString().removeSuffix(".${element.simpleName}"))
-//                )
-//                addOriginatingElement(element)
-//            }
 
         }
 
@@ -126,16 +107,22 @@ return tag.run { ${element.simpleName}($getStatements) }
     private fun getArgs(key: String) = "(\"$key\")"
 
 
-    private fun getSerializerBody(namesAndArgs: List<MethodSuffixAndArgsResult>): String {
-        val putStatements = namesAndArgs.joinToString("\n    ") {
-            if (it.isTag) "put" + it.suffix + putArgs(it.propertyName, it.propertyName + ".toTag()")
-            else "put" + it.suffix + putArgs(it.propertyName)
+    private fun getSerializerBody(serializationMethods: List<SerializationMethod>): String {
+        val putStatements = serializationMethods.joinToString("\n    ") {
+            it.serialization
         }
-        return """
-    return CompoundTag().apply {
-        $putStatements
+        return """return CompoundTag().apply {
+$putStatements
+}"""
     }
-            """.trimIndent()
+
+    private fun getDeserializerBody(serializationMethods: List<SerializationMethod>, deserializedClassName : String) : String{
+        val getStatements = serializationMethods.joinToString(",\n    ") { it.deserialization }
+        return """return tag.run {
+ $deserializedClassName($getStatements)
+}          
+""".trimIndent()
+
     }
 
 
@@ -173,7 +160,7 @@ return tag.run { ${element.simpleName}($getStatements) }
 
     companion object {
         const val KAPT_KOTLIN_GENERATED_OPTION_NAME = "kapt.kotlin.generated"
-        const val CompoundTagNamespace = "fudge.minecraft"
+        const val CompoundTagNamespace = "net.minecraft.nbt"
         const val CompoundTagName = "CompoundTag"
     }
 }
